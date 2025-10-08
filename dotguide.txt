@@ -3,3 +3,10 @@
 2. deze map naat github pushen
 
 3. uitvogelen hoe die symlinks werken
+
+
+
+OFFFFFFFFFFFFFFFFFFFF
+
+1. bare git repo toestand verder uitspitten, lijkt super easy
+
