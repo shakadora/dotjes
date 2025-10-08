@@ -1,0 +1,5 @@
+1. script maken om dotfiles te kopieren naar deze map
+
+2. deze map naat github pushen
+
+3. uitvogelen hoe die symlinks werken
