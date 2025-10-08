@@ -4,9 +4,67 @@
 
 3. uitvogelen hoe die symlinks werken
 
+SCRIPTS OM TE CHECKEN
+=====================
+kopies naar dotfiles map
+------------------------
 
 
-OFFFFFFFFFFFFFFFFFFFF
+dotfiles.sh
+    #!/bin/bash
+        cp -r ~/.config/alacritty ~/dotfiles
+        cp -r ~/.config/hypr ~/dotfiles
+        cp -r ~/.config/i3 ~/dotfiles
+        cp -r ~/.config/nvim ~/dotfiles
+        cp -r ~/.config/polybar ~/dotfiles
+        cp -r ~/.config/tofi ~/dotfiles
+        cp -r ~/.config/waybar ~/dotfiles
+        cp -r ~/.config/dunst ~/dotfiles
+        cp -r ~/.zshrc ~/dotfiles
+        cp -r ~/.config/compfy ~/dotfiles
+        cp -r ~/.config/rofi ~/dotfiles
+
+        cd ~/dotfiles
+        git add --all
+        git commit
+        git push
+
+in .zshrc toevoegen :
+    alias dots=~/scripts/dotfiles.sh
+
+symlinks maken?
+
+
+
+symlink aanmaak en kopie ineens??
+---------------------------------
+#!/bin/bash
+
+    install() {
+        # use the second argument, if it exists
+        target=$HOME/${2-$1}
+        if [[ -L $target ]]; then
+            echo "Found existing symlink at" $target
+        else
+            if [[ -e $target ]]; then
+                mv -vi $target $target.bak
+            fi
+            ln -svi $HOME/dotfiles/$1 $target
+        fi
+    }
+
+    install .zshrc
+    install .zshenv
+    install .bashrc
+    install .config/nvim
+    install .gitconfig
+    install .config/alacritty.toml
+
+
+
+
+OFFFFFFFFFFFFFFFFFFF
+====================
 
 1. bare git repo toestand verder uitspitten, lijkt super easy
 
