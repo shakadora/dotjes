@@ -1,6 +1,8 @@
 ## TO DO
 # imports die greyed out staan opzoeken
 
+# wallpapers in folder zetten die mee naar github gaat
+
 # hoe ROFI, GUI Apps (firefox, zim, steam, ...), TUI Apps (nvim, yazi, btop, ...) starten met binds?
 
 # ROFI launcher
@@ -200,7 +202,7 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper='~/Downloads//605086.jpg',
+        wallpaper='~/Downloads//239051.jpg',
             wallpaper_mode='fill',
         bottom=bar.Bar(
             [
