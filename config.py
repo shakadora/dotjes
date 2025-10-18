@@ -208,7 +208,7 @@ screens = [
                 widget.GroupBox(),
                 # spacer verdeelt de bar in gelijke delen
                 widget.Spacer(),
-                widget.TextBox("Mod+Q to enter Command", foreground="#d75f5f"),
+#                widget.TextBox("Mod+Q to enter Command", foreground="#d75f5f"),
                 widget.Spacer(),
                 widget.Prompt(),
                 widget.Spacer(),
