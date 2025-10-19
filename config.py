@@ -7,10 +7,12 @@
 # werkt met terminal commands
 #   rofi -show keys/drun/filebrowser
 #   dus bind voor applaunch en voor filesearch
-#   wtf gaan die binds over?
+#   wtf gaan die binds over? kan ik die tekst veranderen?
 
 # resolutie of whatever instellen? liefst enigszins globaal
-
+# kan veranderd w in xrandr, maar twee isues :
+#   gaat terug naar origineel bij reboot
+#   muiscursor is enorm, schaal verandert mee
 
 # config.py is het LIVETESTFILE, tussendoor backups
 # default.py is de bare minimum start
@@ -189,38 +191,30 @@ layouts = [
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
-#    layout.TreeTab(
+    layout.TreeTab(
 #         font = "sans",
-#         fontsize = 11,                         # ik vermoed hier aanpassen, eerst resolutie shit aanpakken
-#         border_width = 0,                      # zien wat heel die boel doet in treetab mode,
-#         bg_color = colors[0],                  # gaat kleurchaos zijn vermoed ik
-#         active_bg = colors[8],                 #
-#         active_fg = colors[2],                 #
-#         inactive_bg = colors[1],               #
-#         inactive_fg = colors[0],               #
-#         padding_left = 8,                      #
-#         padding_x = 8,                         #
-#         padding_y = 6,                         #
-#         sections = ["ONE", "TWO", "THREE"],    #
-#         section_fontsize = 10,                 #
-#         section_fg = colors[7],                #
-#         section_top = 15,                      #
-#         section_bottom = 15,                   #
-#         level_shift = 8,                       #
-#         vspace = 3,                            #
-#         panel_width = 240                      #
-#         ),
+         fontsize = 16,                             # van de window-namen
+         border_width = 5,                          # spatie tss de windownamen
+#         bg_color = colors[0],                     # ik vermoed dat deze kleuren de boel crashen
+#         active_bg = colors[8],                    # lijken te verwijzen naar een tabel die er niet is
+#         active_fg = colors[2],
+#         inactive_bg = colors[1],
+#         inactive_fg = colors[0],
+         padding_left = 6,
+         padding_x = 2,                             # ik denk padding binnenin balk voor tekst start
+         padding_y = 3,
+         sections = ["ONE", "TWO", "THREE"],        # namen van sections (=subgroepen?)
+         section_fontsize = 14,                     # font van de 'groeptitel'
+#         section_fg = colors[7],
+         section_top = 10,
+         section_bottom = 15,
+#         level_shift = 8,
+#         vspace = 3,
+         panel_width = 200
+         ),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
-
-#
-# POGING 10
-# eigenlijk enkel treetab geactiveerd en aangepast
-#
-# werkte niet, weggecomment, uitzoeken
-#
-
 
 widget_defaults = dict(
     font="sans", # ev toffere font kiezen?
