@@ -1,8 +1,6 @@
 ## TO DO
 # imports die greyed out staan opzoeken
 
-# wallpapers in folder zetten die mee naar github gaat
-
 # hoe ROFI, GUI Apps (firefox, zim, steam, ...), TUI Apps (nvim, yazi, btop, ...) starten met binds?
 
 # ROFI launcher
@@ -178,7 +176,10 @@ for i in groups:
     )
 
 layouts = [
-    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
+    layout.Columns(
+            border_focus_stack=["#d75f5f", "#8f3d3d"],
+            border_width=4
+            ),
     layout.Max(),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
@@ -188,29 +189,61 @@ layouts = [
     # layout.MonadWide(),
     # layout.RatioTile(),
     # layout.Tile(),
-    layout.TreeTab(),
+#    layout.TreeTab(
+#         font = "sans",
+#         fontsize = 11,                         # ik vermoed hier aanpassen, eerst resolutie shit aanpakken
+#         border_width = 0,                      # zien wat heel die boel doet in treetab mode,
+#         bg_color = colors[0],                  # gaat kleurchaos zijn vermoed ik
+#         active_bg = colors[8],                 #
+#         active_fg = colors[2],                 #
+#         inactive_bg = colors[1],               #
+#         inactive_fg = colors[0],               #
+#         padding_left = 8,                      #
+#         padding_x = 8,                         #
+#         padding_y = 6,                         #
+#         sections = ["ONE", "TWO", "THREE"],    #
+#         section_fontsize = 10,                 #
+#         section_fg = colors[7],                #
+#         section_top = 15,                      #
+#         section_bottom = 15,                   #
+#         level_shift = 8,                       #
+#         vspace = 3,                            #
+#         panel_width = 240                      #
+#         ),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
 
+#
+# POGING 10
+# eigenlijk enkel treetab geactiveerd en aangepast
+#
+# werkte niet, weggecomment, uitzoeken
+#
+
+
 widget_defaults = dict(
-    font="sans",
-    fontsize=30,
+    font="sans", # ev toffere font kiezen?
+
+# fontsize gaat wss gecorrigeerd moeten worden na aanpassen resolutie issues
+
+    fontsize=14,
     padding=3,
 )
 extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper='~/Downloads//239051.jpg',
+        wallpaper='~/Downloads//605086.jpg',
             wallpaper_mode='fill',
         bottom=bar.Bar(
             [
                 widget.CurrentLayout(),
+                widget.Spacer(),
                 widget.GroupBox(),
                 # spacer verdeelt de bar in gelijke delen
                 widget.Spacer(),
-#                widget.TextBox("Mod+Q to enter Command", foreground="#d75f5f"),
+                widget.TextBox("Mod+Q to enter Command", foreground="#d75f5f"),
                 widget.Spacer(),
                 widget.Prompt(),
                 widget.Spacer(),
@@ -226,7 +259,7 @@ screens = [
                 widget.Clock(format="%d-%m-%Y %a %I:%M %p"),
                 widget.QuickExit(),
             ],
-            40,
+            24,
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
