@@ -203,7 +203,7 @@ layouts = [
          padding_left = 6,
          padding_x = 2,                             # ik denk padding binnenin balk voor tekst start
          padding_y = 3,
-         sections = ["ONE", "TWO", "THREE"],        # namen van sections (=subgroepen?)
+         sections = ["IENE", "MIENE", "MUTTE"],        # namen van sections (=subgroepen?)
          section_fontsize = 14,                     # font van de 'groeptitel'
 #         section_fg = colors[7],
          section_top = 10,
@@ -228,32 +228,61 @@ extension_defaults = widget_defaults.copy()
 
 screens = [
     Screen(
-        wallpaper='~/Downloads//605086.jpg',
+        wallpaper='~/Downloads//239051.jpg',
+#        wallpaper='~/Downloads//605086.jpg',
+#        wallpaper='~/Downloads//239051.jpg',
+#        wallpaper='~/Downloads//239051.jpg',
             wallpaper_mode='fill',
         bottom=bar.Bar(
             [
-                widget.CurrentLayout(),
+                widget.Spacer(10),
+                widget.CurrentLayout(
+                    foreground ="#ebdbb2"
+                    ),
+                widget.Spacer(20),
+                widget.GroupBox(
+                    inactive ="#ebdbb2",
+                    active ="#d65d0e",
+                    this_current_screen_border ="#d79921"
+                    ),
+                widget.Spacer(50),
+                widget.TextBox(
+                    "Mod + Q for Command Prompt----------Mod + Return for Terminal----------Mod + W to close focused window----------Mod + Tab to cycle layouts----------Mod + F to fullscreen----------Mod + HJKL/Arrows to move focus----------Mod + Space to cycle focus----------Mod + Shift + HJKL/Arrows to move focused window----------Mod + Control + HJKL/Arrows to enlarge focused window in a direction----------Mod + AZERTYUIOP to move to a workspace----------Mod + Control + AZERTYUIOP to move focused window to a workspace but remain in current workspace----------Mod + Shift + AZERTYUIOP to move along with focused window to other workspace----------Control + Arrows to move to next/previous workspace",
+                    scroll = True,
+                    width = 800,
+                    scroll_interval = 0.02,
+                    foreground ="#98971a",
+                    ),
+                widget.Spacer(20),
+                widget.Prompt(
+                    foreground ="#ebdbb2"
+                    ),
                 widget.Spacer(),
-                widget.GroupBox(),
-                # spacer verdeelt de bar in gelijke delen
-                widget.Spacer(),
-                widget.TextBox("Mod+Q to enter Command", foreground="#d75f5f"),
-                widget.Spacer(),
-                widget.Prompt(),
-                widget.Spacer(),
-                widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        "launch": ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
-                ),
-                widget.Spacer(),
+                widget.WindowName(
+                    foreground ="#ebdbb2"
+                    ),
+#                widget.Chord(
+#                    chords_colors={
+#                        "launch": ("#ff0000", "#ffffff"),
+#                    },
+#                    name_transform=lambda name: name.upper(),
+#                ),
+                widget.Spacer(10),
+                # widget.Bluetooth(),
                 widget.Systray(),
-                widget.Clock(format="%d-%m-%Y %a %I:%M %p"),
-                widget.QuickExit(),
+                widget.Spacer(20),
+                widget.Clock(
+                    format="|  %d-%m-%y  |  %A %H:%M  |",
+                    foreground ="#ebdbb2"
+                    ),
+                widget.Spacer(10),
+                widget.QuickExit(
+                    foreground ="#fb4934"
+                    ),
+                widget.Spacer(10)
             ],
             24,
+            background="#3c3836"
             # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
             # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
         ),
