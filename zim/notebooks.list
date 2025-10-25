@@ -1,0 +1,16 @@
+[NotebookList]
+Default=~/zimnotas
+1=~/Zimnotas/Peter
+2=~/zimnotas
+
+[Notebook 1]
+uri=~/Zimnotas/Peter
+name=Peter
+interwiki=None
+icon=None
+
+[Notebook 2]
+uri=~/zimnotas
+name=zimnotas
+interwiki=None
+icon=None
