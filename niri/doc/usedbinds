@@ -1,0 +1,30 @@
+NIRI + DMS used bind shortlist
+
+mod +
+    D    Tab    T    Space    V    M    ,    Y    N    Q    F    W    H    J    K    L
+    home    end    pgup    pgdwn    U    I    R    (    )    .    C    -    =
+    1-9
+
+mod + shift +
+    D    N    E    F    T    V    H    J    K    L
+    pgup    pgdwn    U    I    R    -    =    P
+    1-9
+
+mod + ctrl +
+    home    end    U    I    R    F    C
+
+mod + alt +
+    L
+
+printscreen
+ctrl + alt + del
+
+problemen met azertyuiop bindings voor spaces :
+mod+T       terminal                mod+shift+T     toggle floating/tiling
+mod+Y       browse WP               mod+shift+E     logout session
+mod+U       focus WS down           mod+shift+U     move WS down
+mod+I       focus WS up             mod+shift+I     move WS up
+mod+ctrl+U  move column WS down
+mod+ctrl+I  move column WS up
+mod+R       cycle column width      mod+shift+R     cycle window height
+mod+ctrl+R  reset height

@@ -191,8 +191,10 @@ prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
 animations {
+    // slowdown 1.2
+
     workspace-switch {
-        spring damping-ratio=0.80 stiffness=523 epsilon=0.0001
+        spring damping-ratio=0.70 stiffness=400 epsilon=0.0001
     }
 
     window-open {
@@ -206,19 +208,19 @@ animations {
     }
 
     horizontal-view-movement {
-        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
+        spring damping-ratio=0.70 stiffness=400 epsilon=0.0001
     }
 
     window-movement {
-        spring damping-ratio=0.75 stiffness=323 epsilon=0.0001
+        spring damping-ratio=0.75 stiffness=300 epsilon=0.0001
     }
 
     window-resize {
-        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
+        spring damping-ratio=0.6 stiffness=300 epsilon=0.0001
     }
 
     config-notification-open-close {
-        spring damping-ratio=0.65 stiffness=923 epsilon=0.001
+        spring damping-ratio=0.65 stiffness=900 epsilon=0.0001
     }
 
     screenshot-ui-open {
@@ -227,7 +229,7 @@ animations {
     }
 
     overview-open-close {
-        spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
+        spring damping-ratio=0.60 stiffness=200 epsilon=0.0001
     }
 }
 
@@ -475,7 +477,7 @@ binds {
     // === Numbered Workspaces ===
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
-//    Mod+\'"'{ focus-workspace 3; }
+//    Mod+ "\"" { focus-workspace 3; }
     Mod+3 { focus-workspace 3; }
     Mod+4 { focus-workspace 4; }
     Mod+5 { focus-workspace 5; }

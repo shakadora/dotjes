@@ -1,0 +1,37 @@
+used fucncions
+
+overview toggle
+toggle hotkey overlay
+spwawn kitty
+spawn app launcher
+spawn clipboard
+spawn task manager
+spawn dms settings
+browse wallpaper folder
+open notication center
+open notepad
+lock screen
+logout
+
+close window                            focus column left, right
+max window                              focus window up, down
+fullscreen window                       move column left, right
+toggle floating status                  move window up, down
+switch focus floating <-> tiling        focus column first, last
+toggle tabbed display                   move column first, last
+
+focus WS up, down                       focus WS#
+move column to WS up, down              move column to WS#
+move WS up, down                        move WITH column to WS#
+
+consume or expel window left, right
+expel window from column
+
+cycle window heights                    cycle column widths
+reset height                            use available widths
+center column                           center visible columns
+
+increase/decrease column width          increase/decrease window height
+
+
+
