@@ -2,47 +2,13 @@
 // "/-" comments out the following node.
 // Check the wiki for a full description of the configuration:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
-
 config-notification {
     disable-failed
 }
 
-// Outputs from existing configuration
-/-output "eDP-1" {
-    // Uncomment this line to disable this output.
-    // off
-
-    // Resolution and, optionally, refresh rate of the output.
-    // The format is "<width>x<height>" or "<width>x<height>@<refresh rate>".
-    // If the refresh rate is omitted, niri will pick the highest refresh rate
-    // for the resolution.
-    // If the mode is omitted altogether or is invalid, niri will pick one automatically.
-    // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "1920x1080@120.030"
-
-    // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 2
-
-    // Transform allows to rotate the output counter-clockwise, valid values are:
-    // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
-    transform "normal"
-
-    // Position of the output in the global coordinate space.
-    // This affects directional monitor actions like "focus-monitor-left", and cursor movement.
-    // The cursor can only move between directly adjacent outputs.
-    // Output scale and rotation has to be taken into account for positioning:
-    // outputs are sized in logical, or scaled, pixels.
-    // For example, a 3840×2160 output with scale 2.0 will have a logical size of 1920×1080,
-    // so to put another output directly adjacent to it on the right, set its x to 1920.
-    // If the position is unset or results in an overlap, the output is instead placed
-    // automatically.
-    position x=1280 y=0
-}
-
-
 gestures {
-    // move mouse into top-left corner to toggle overview
     hot-corners {
+        off
     }
 }
 
@@ -56,29 +22,29 @@ input {
         numlock
     }
     touchpad {
-        tap
     }
     mouse {
     }
     trackpoint {
     }
-//    focus-follows-mouse
 }
-
 // You can configure outputs by their name, which you can find
 // by running `niri msg outputs` while inside a niri instance.
 // The built-in laptop monitor is usually called "eDP-1".
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
-
+/-output "eDP-2" {
+    mode "2560x1600@239.998993"
+    position x=2560 y=0
+    variable-refresh-rate
+}
 // Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 layout {
-    empty-workspace-above-first
     // Set gaps around windows in logical pixels.
-    gaps 10
+    gaps 5
     background-color "transparent"
     // When to center a column when changing focus, options are:
     // - "never", default behavior, focusing an off-screen column will keep at the left
@@ -95,24 +61,13 @@ layout {
         proportion 0.33333
         proportion 0.5
         proportion 0.66667
-        proportion 1.0
         // Fixed sets the width in logical pixels exactly.
         // fixed 1920
     }
-
     // You can also customize the heights that "switch-preset-window-height" (Mod+Shift+R) toggles between.
-    preset-window-heights {
-        proportion 0.33
-        proportion 0.5
-        proportion 0.67
-        proportion 1.0
-    }
-
+    // preset-window-heights { }
     // You can change the default width of the new windows.
-    default-column-width {
-        proportion 0.5;
-    }
-
+    default-column-width { proportion 0.5; }
     // If you leave the brackets empty, the windows themselves will decide their initial width.
     // default-column-width {}
     // By default focus ring and border are rendered as a solid background rectangle
@@ -127,18 +82,15 @@ layout {
     // `draw-border-with-background`.
     border {
         off
-        width 3
-        active-color   "#0ac0c9"      // Neutral gray
-        inactive-color "#808080"      // Light gray
-        active-gradient from="#0ac0c9" to="#b90ac9" angle=135
+        width 4
+        active-color   "#707070"      // Neutral gray
+        inactive-color "#d0d0d0"      // Light gray
         urgent-color   "#cc4444"      // Softer red
     }
     focus-ring {
-//        off
-        width 3
-        active-gradient from="#0ac0c9" to="#b90ac9" angle=135
-//        active-color   "#cc4444"      // Soft Red
-//        inactive-color "#808080"      // Medium Gray
+        width 2
+        active-color   "#808080"      // Medium gray
+        inactive-color "#505050"      // Dark gray
     }
     shadow {
         softness 30
@@ -149,19 +101,15 @@ layout {
     struts {
     }
 }
-
 layer-rule {
     match namespace="^quickshell$"
     place-within-backdrop true
 }
-
 overview {
     workspace-shadow {
         off
     }
-    zoom 0.45
 }
-
 // Add lines like this to spawn processes at startup.
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
@@ -169,9 +117,7 @@ overview {
 // This line starts waybar, a commonly used bar for Wayland compositors.
 spawn-at-startup "bash" "-c" "wl-paste --watch cliphist store &"
 spawn-at-startup "dms" "run"
-spawn-at-startup "kitty" // 10/11 om te testen of dit werkt
 spawn-at-startup "/usr/lib/mate-polkit/polkit-mate-authentication-agent-1"
-
 environment {
   XDG_CURRENT_DESKTOP "niri"
   QT_QPA_PLATFORM "wayland"
@@ -179,58 +125,44 @@ environment {
   QT_QPA_PLATFORMTHEME "gtk3"
   QT_QPA_PLATFORMTHEME_QT6 "gtk3"
   TERMINAL "kitty"
-  EDITOR "kate"  // werkt niet, misschien na reboot?
 }
-
 hotkey-overlay {
     skip-at-startup
 }
-
 prefer-no-csd
-
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
-
 animations {
     workspace-switch {
         spring damping-ratio=0.80 stiffness=523 epsilon=0.0001
     }
-
     window-open {
         duration-ms 150
         curve "ease-out-expo"
     }
-
     window-close {
         duration-ms 150
         curve "ease-out-quad"
     }
-
     horizontal-view-movement {
         spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
     }
-
     window-movement {
         spring damping-ratio=0.75 stiffness=323 epsilon=0.0001
     }
-
     window-resize {
         spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
     }
-
     config-notification-open-close {
         spring damping-ratio=0.65 stiffness=923 epsilon=0.001
     }
-
     screenshot-ui-open {
         duration-ms 200
         curve "ease-out-quad"
     }
-
     overview-open-close {
         spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
     }
 }
-
 // Window rules let you adjust behavior for individual windows.
 // Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
@@ -243,14 +175,12 @@ window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     default-column-width {}
 }
-
 window-rule {
     match app-id=r#"^org\.gnome\."#
     draw-border-with-background false
     geometry-corner-radius 12
     clip-to-geometry true
 }
-
 window-rule {
     match app-id=r#"^gnome-control-center$"#
     match app-id=r#"^pavucontrol$"#
@@ -258,7 +188,6 @@ window-rule {
     default-column-width { proportion 0.5; }
     open-floating false
 }
-
 window-rule {
     match app-id=r#"^gnome-calculator$"#
     match app-id=r#"^galculator$"#
@@ -268,7 +197,6 @@ window-rule {
     match app-id=r#"^xdg-desktop-portal$"#
     open-floating true
 }
-
 window-rule {
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     match app-id="Alacritty"
@@ -277,89 +205,50 @@ window-rule {
     match app-id="kitty"
     draw-border-with-background false
 }
-
 window-rule {
     match is-active=false
-    opacity 0.8
+    opacity 0.9
 }
-
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
     match app-id="zoom"
     open-floating true
 }
-
 window-rule {
     geometry-corner-radius 12
     clip-to-geometry true
 }
-// KEYBINDINGS
 binds {
-    // overview
-    Mod+D {
-        spawn "niri" "msg" "action" "toggle-overview";
-    }
-    //overview
-    Mod+Tab repeat=false {
-        toggle-overview;
-    }
+    // === System & Overview ===
+    Mod+D { spawn "niri" "msg" "action" "toggle-overview"; }
+    Mod+Tab repeat=false { toggle-overview; }
+    Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // hotkey list
-    Mod+Shift+D {       // werkt niet met slash, wel met D
-        show-hotkey-overlay;
-    }
-
-    // kitty zsh terminal
-    Mod+T hotkey-overlay-title="Open Terminal" {
-        spawn "kitty";
-    }
-
-    // applauncher
+    // === Application Launchers ===
+    Mod+T hotkey-overlay-title="Open Terminal" { spawn "kitty"; }
     Mod+Space hotkey-overlay-title="Application Launcher" {
         spawn "dms" "ipc" "call" "spotlight" "toggle";
     }
-
-    // clipboard
     Mod+V hotkey-overlay-title="Clipboard Manager" {
         spawn "dms" "ipc" "call" "clipboard" "toggle";
     }
-
-    // task manager
     Mod+M hotkey-overlay-title="Task Manager" {
         spawn "dms" "ipc" "call" "processlist" "toggle";
     }
-
-    // DMS settings
     Mod+Comma hotkey-overlay-title="Settings" {
         spawn "dms" "ipc" "call" "settings" "toggle";
     }
-
-    // DMS wallpapers
     Mod+Y hotkey-overlay-title="Browse Wallpapers" {
         spawn "dms" "ipc" "call" "dankdash" "wallpaper";
     }
+    Mod+N hotkey-overlay-title="Notification Center" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Mod+Shift+N hotkey-overlay-title="Notepad" { spawn "dms" "ipc" "call" "notepad" "toggle"; }
 
-    // notifications
-    Mod+N hotkey-overlay-title="Notification Center" {
-        spawn "dms" "ipc" "call" "notifications" "toggle";
-    }
-
-    // notepad
-    Mod+Shift+N hotkey-overlay-title="Notepad" {
-        spawn "dms" "ipc" "call" "notepad" "toggle";
-    }
-
-    // lock
+    // === Security ===
     Mod+Alt+L hotkey-overlay-title="Lock Screen" {
         spawn "dms" "ipc" "call" "lock" "lock";
     }
-
-    // logout
-    Mod+Shift+E {
-        quit;
-    }
-
-    // task manager
+    Mod+Shift+E { quit; }
     Ctrl+Alt+Delete hotkey-overlay-title="Task Manager" {
         spawn "dms" "ipc" "call" "processlist" "toggle";
     }
@@ -387,12 +276,12 @@ binds {
     }
 
     // === Window Management ===
-    Mod+Q repeat=false      { close-window; }
-    Mod+F                   { maximize-column; }
-    Mod+Shift+F             { fullscreen-window; }
-    Mod+Shift+T             { toggle-window-floating; }
-    Mod+Shift+V             { switch-focus-between-floating-and-tiling; }
-    Mod+W                   { toggle-column-tabbed-display; } //===doet niks?===
+    Mod+Q repeat=false { close-window; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+Shift+T { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+    Mod+W { toggle-column-tabbed-display; }
 
     // === Focus Navigation ===
     Mod+Left  { focus-column-left; }
@@ -415,38 +304,38 @@ binds {
     Mod+Shift+L     { move-column-right; }
 
     // === Column Navigation ===
-    Mod+Home        { focus-column-first; }
-    Mod+End         { focus-column-last; }
-    Mod+Ctrl+Home   { move-column-to-first; }
-    Mod+Ctrl+End    { move-column-to-last; }
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
 
     // === Monitor Navigation ===
-    //Mod+Ctrl+Left  { focus-monitor-left; }
+    Mod+Ctrl+Left  { focus-monitor-left; }
     //Mod+Ctrl+Down  { focus-monitor-down; }
     //Mod+Ctrl+Up    { focus-monitor-up; }
-    //Mod+Ctrl+Right { focus-monitor-right; }
-    //Mod+Ctrl+H     { focus-monitor-left; }
-    //Mod+Ctrl+J     { focus-monitor-down; }
-    //Mod+Ctrl+K     { focus-monitor-up; }
-    //Mod+Ctrl+L     { focus-monitor-right; }
+    Mod+Ctrl+Right { focus-monitor-right; }
+    Mod+Ctrl+H     { focus-monitor-left; }
+    Mod+Ctrl+J     { focus-monitor-down; }
+    Mod+Ctrl+K     { focus-monitor-up; }
+    Mod+Ctrl+L     { focus-monitor-right; }
 
     // === Move to Monitor ===
-    //Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
-    //Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
-    //Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
-    //Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
-    //Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
-    //Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
-    //Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
-    //Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
+    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+    Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
 
     // === Workspace Navigation ===
     Mod+Page_Down      { focus-workspace-down; }
     Mod+Page_Up        { focus-workspace-up; }
     Mod+U              { focus-workspace-down; }
     Mod+I              { focus-workspace-up; }
-    Mod+Ctrl+Down      { move-column-to-workspace-down; }
-    Mod+Ctrl+Up        { move-column-to-workspace-up; }
+    Mod+Ctrl+Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Up   { move-column-to-workspace-up; }
     Mod+Ctrl+U         { move-column-to-workspace-down; }
     Mod+Ctrl+I         { move-column-to-workspace-up; }
 
@@ -462,10 +351,10 @@ binds {
     Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
     Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
 
-    //Mod+WheelScrollRight      { focus-column-right; }
-    //Mod+WheelScrollLeft       { focus-column-left; }
-    //Mod+Ctrl+WheelScrollRight { move-column-right; }
-    //Mod+Ctrl+WheelScrollLeft  { move-column-left; }
+    Mod+WheelScrollRight      { focus-column-right; }
+    Mod+WheelScrollLeft       { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft  { move-column-left; }
 
     Mod+Shift+WheelScrollDown      { focus-column-right; }
     Mod+Shift+WheelScrollUp        { focus-column-left; }
@@ -475,7 +364,6 @@ binds {
     // === Numbered Workspaces ===
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
-//    Mod+\'"'{ focus-workspace 3; }
     Mod+3 { focus-workspace 3; }
     Mod+4 { focus-workspace 4; }
     Mod+5 { focus-workspace 5; }
@@ -495,40 +383,36 @@ binds {
     Mod+Shift+8 { move-column-to-workspace 8; }
     Mod+Shift+9 { move-column-to-workspace 9; }
 
-    // mod + ctrl 1-9 voor move column and follow?
-
     // === Column Management ===
-    Mod+BracketLeft     { consume-or-expel-window-left; }
-    Mod+BracketRight    { consume-or-expel-window-right; }
-    Mod+Period          { expel-window-from-column; }
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+Period { expel-window-from-column; }
 
     // === Sizing & Layout ===
-    Mod+R           { switch-preset-column-width; }
-    Mod+Shift+R     { switch-preset-window-height; }
-    Mod+Ctrl+R      { reset-window-height; }
-    Mod+Ctrl+F      { expand-column-to-available-width; }
-    Mod+C           { center-column; }
-    Mod+Ctrl+C      { center-visible-columns; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+C { center-column; }
+    Mod+Ctrl+C { center-visible-columns; }
 
     // === Manual Sizing ===
-    Mod+Minus           { set-column-width "-10%"; }
-    Mod+Equal           { set-column-width "+10%"; }
-    Mod+Shift+Minus     { set-window-height "-10%"; }
-    Mod+Shift+Equal     { set-window-height "+10%"; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
 
     // === Screenshots ===
-    XF86Launch1         { screenshot; }
-    Ctrl+XF86Launch1    { screenshot-screen; }
-    Alt+XF86Launch1     { screenshot-window; }
-    Print               { screenshot; }
-    Ctrl+Print          { screenshot-screen; }
-    Alt+Print           { screenshot-window; }
-
+    XF86Launch1 { screenshot; }
+    Ctrl+XF86Launch1 { screenshot-screen; }
+    Alt+XF86Launch1 { screenshot-window; }
+    Print { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
     // === System Controls ===
-    Mod+Escape allow-inhibiting=false   { toggle-keyboard-shortcuts-inhibit; }
-    Mod+Shift+P                         { power-off-monitors; }
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+    Mod+Shift+P { power-off-monitors; }
 }
-
 debug {
     honor-xdg-activation-with-invalid-serial
 }
