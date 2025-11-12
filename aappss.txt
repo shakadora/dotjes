@@ -9,10 +9,10 @@ base 3-2
 bat 0.26.0-1
 bluez-utils 5.84-1
 btop 1.4.5-1
-calibre 8.7.0-4
+//calibre 8.7.0-4
 cantarell-fonts 1:0.303.1-2
 cbonsai 1.4.2-1
-clamav 1.5.1-1
+//clamav 1.5.1-1
 cmatrix 2.0-4
 dolphin-plugins 25.08.3-1
 downgrade 11.5.4-1
@@ -34,7 +34,7 @@ fastfetch 2.54.0-1
 ffmpegthumbnailer 2.2.3-4
 figlet 2.2.5-6
 firefox 144.0.2-1
-flameshot 13.3.0-1
+// flameshot 13.3.0-1
 glances 4.4.1-1
 google-gemini-cli-git 0.1.7.r23.gfc21d1ca-1
 gparted 1.7.0-1
@@ -44,17 +44,17 @@ hdparm 9.65-3
 htop 3.4.1-1
 hwdetect 2025.08.16.1333-1
 hwinfo 25.0-2
-hyprland 0.52.0-1
-inkscape 1.4.2-10
+// hyprland 0.52.0-1
+// inkscape 1.4.2-10
 intel-ucode 20250812-1
-isoimagewriter 25.08.3-1
+// isoimagewriter 25.08.3-1
 kate 25.08.3-1
 kdeplasma-addons 6.5.2-1
 kgamma 6.5.2-1
 kitty 0.44.0-1
 kwallet-pam 6.5.2-1
 libgsf 1.14.53-2
-libreoffice-still 25.2.7-1
+// libreoffice-still 25.2.7-1
 libwnck3 43.3-1
 logrotate 3.22.0-1
 lolcat 100.0.1-5
@@ -63,7 +63,7 @@ lynis 3.1.6-1
 maldet 1.6.6.1-1
 maliit-keyboard 2.3.1-4
 man-pages 6.16-1
-mc 4.8.33-1
+//mc 4.8.33-1
 micro 2.0.14-1
 mpd 0.24.6-1
 nano-syntax-highlighting 2025.07.01.r0.g256995b-2
@@ -93,7 +93,7 @@ rebuild-detector 4.4.5-1
 reiserfsprogs 3.6.27-5
 renameutils 0.12.0-7
 rkhunter 1.4.6-4
-rmpc 0.9.0-1
+// rmpc 0.9.0-1
 s-tui 1.2.0-1
 sddm-kcm 6.5.2-1
 sg3_utils 1.48-1
@@ -101,19 +101,19 @@ sof-firmware 2025.05.1-1
 stacer-git 1.5.0.r1.ge82e92c-1
 steam 1.0.0.85-1
 stremio 4.4.169-1
-superfile 1.4.0-1
+// superfile 1.4.0-1
 thefuck 3.32-11
 timeshift 25.07.7-1
 tldr 3.4.3-2
 toilet 0.3.r155.3eb9d58-3
 ttf-opensans 3.003-1
-ventoy 1.1.07-1
+// ventoy 1.1.07-1
 vi 1:070224-6
 virtualbox 7.2.4-1
-virustotal 1.3-3
+// virustotal 1.3-3
 welcome 25.10.3-1
 wikiman 2.14.1-1
-wofi 1.5.1-1
+// wofi 1.5.1-1
 xl2tpd 1.3.19-1
 xnviewmp 1.9.5-1
 xorg-xev 1.2.6-1
@@ -122,5 +122,5 @@ xorg-xinput 1.6.4-2
 xorg-xkill 1.0.6-2
 xwaylandvideobridge 0.4.0-2
 yazi 25.5.31-2
-zim 0.76.3-1
+// zim 0.76.3-1
 zsh-completions 0.35.0-3
