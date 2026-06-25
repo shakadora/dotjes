@@ -1,0 +1,62 @@
+You have mapped out your post-install journey perfectly. You have identified exactly which parts of a minimalist window-manager setup need manual text adjustments right after the machine boots up.
+Here is the complete, high-density summary of your post-install checklist with the exact code blocks and directories you will need:
+------------------------------
+## 🖨️ 1. Printer Initialization
+Because your configuration runs a standalone compositor (Niri) instead of a heavy desktop environment, there is no automatic system settings popup for printer discovery.
+
+* The Action: Turn on your Samsung printer, open Firefox, and navigate to the built-in local printing network panel.
+* The Location: http://localhost:631/
+* The Step: Click on Administration → Add Printer, log in with your primary system user details, and choose your discovered Samsung unit from the hardware list.
+
+------------------------------
+## 📝 2. Neovim Core Setup (LazyVim structure)
+Your configuration automatically builds the core system packages (git, gcc, ripgrep, LSPs) that LazyVim needs to operate at peak speed. To initialize it, you need to map out your initial configuration profile.
+
+* The Target Location: ~/.config/nvim/
+* The Action: Run the automated clone command to instantiate the boilerplate framework layout:
+
+git clone https://github.com ~/.config/nvim
+
+* The Files: This will cleanly lay out the structure you mentioned:
+* ~/.config/nvim/init.lua: The orchestrator file that loads the core Neovim parameters and sets up the plugin managers.
+   * ~/.config/nvim/lua/config/keymaps.lua: The specific script file where you will write out your custom keyboard overrides and shortcuts.
+
+------------------------------
+## 📸 3. Niri Workspace Shortcuts (Screenshots)
+Your system configuration installs grim, slurp, and swappy, but Niri needs to know exactly which physical keys trigger them.
+
+* The Location: ~/.config/niri/config.kdl
+* The Step: Open or generate your Niri configuration and bind your physical PrintScreen key to launch the interactive canvas capture module by adding this inside the binds { ... } block:
+
+binds {
+    Mod+Print { spawn "sh" "-c" "grim -g \"$(slurp)\" - | swappy -f -"; }
+}
+
+
+------------------------------
+## 🔒 4. Secure Boot Enforcement (Lanzaboote)
+You cannot initialize motherboard security parameters on your very first system installation phase. You must establish a standard boot generation sequence first, then switch to the security module.
+
+* Step A: Reboot into your computer's BIOS screen and set your Secure Boot keys parameter to "Setup Mode" or "Erase custom keys".
+* Step B: Boot into NixOS and update /etc/nixos/configuration.nix by swapping the legacy boot.loader.systemd-boot values for Lanzaboote:
+
+boot.loader.systemd-boot.enable = pkgs.lib.mkForce false;
+boot.loader.efi.canTouchEfiVariables = true;
+boot.lanzaboote = {
+  enable = true;
+  pkiBundle = "/etc/secureboot";
+};
+
+* Step C: Execute the cryptographic key creation script pipelines in your terminal terminal:
+
+sudo sbctl create-keys
+sudo nixos-rebuild switch
+sudo sbctl enroll-keys --microsoft
+
+* Step D: Reboot your machine one final time, go back into your BIOS, and toggle Secure Boot back to "Enabled".
+
+------------------------------
+## 💡 Is that it?
+Yes, that is completely it. Your monolithic configuration.nix is robust enough that every single driver, unfree application allowance, terminal color layer, sound protocol, performance governor, and kernel customization will generate natively during the target installation step without further assistance.
+Are you ready to deploy this file onto your computer using the command line partitioning pipeline (gdisk / nixos-install), or would you like to review how to write out the disk labels first?
+
