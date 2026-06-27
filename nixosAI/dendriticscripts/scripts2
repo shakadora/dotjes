@@ -1,0 +1,9 @@
+# one by one
+sudo mv /etc/nixos/configuration.nix ~/configuration.nix.old
+
+cd /etc/nixos
+sudo git init
+sudo git add .
+
+sudo nixos-rebuild switch --flake /etc/nixos/#nixos-gaming
+
