@@ -1,0 +1,257 @@
+  1 | { config, pkgs, ... }:
+  2 |
+  3 | {
+  4 |   imports = [
+  5 |     ./hardware-configuration.nix
+  6 |   ];
+  7 |
+  8 |   # =========================================================================
+  9 |   # 1. SYSTEM BASE CONFIGURATION (Required for Installation)
+ 10 |   # =========================================================================
+ 11 |
+ 12 |   # Enable Flakes and the modern Nix CLI Tooling natively
+ 13 |   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+ 14 |
+ 15 |   # Bootloader settings (Standard UEFI setup)
+ 16 |   boot.loader.systemd-boot.enable = true;
+ 17 |   boot.loader.efi.canTouchEfiVariables = true;
+ 18 |
+ 19 |   # Networking
+ 20 |   networking.hostName = "nixos-gaming";
+ 21 |   networking.networkmanager.enable = true;
+ 22 |
+ 23 |   # Time zone and Internationalization
+ 24 |   time.timeZone = "Europe/Brussels";
+ 25 |   i18n.defaultLocale = "en_US.UTF-8";
+ 26 |
+ 27 |   # Enable the X11 windowing system backend infrastructure
+ 28 |   services.xserver.enable = true;
+ 29 |
+ 30 |   # Display Manager (GDM handles Niri Wayland sessions cleanly)
+ 31 |   services.displayManager.gdm = {
+ 32 |     enable = true;
+ 33 |     wayland = true;
+ 34 |   };
+ 35 |
+ 36 |   # Enable the Niri Wayland Compositor Module natively
+ 37 |   programs.niri.enable = true;
+ 38 |
+ 39 |   # Enable and Configure Zsh System-wide
+ 40 |   programs.zsh = {
+ 41 |     enable = true;
+ 42 |     enableCompletion = true;
+ 43 |     autosuggestions.enable = true;
+ 44 |     syntaxHighlighting.enable = true;
+ 45 |     shellAliases = {
+ 46 |       rebuild = "sudo nixos-rebuild switch";
+ 47 |     };
+ 48 |   };
+ 49 |
+ 50 |   # System-wide Kitty Configuration with Gruvbox Dark Theme
+ 51 |   programs.kitty = {
+ 52 |     enable = true;
+ 53 |     extraConfig = ''
+ 54 |       # Gruvbox Dark Color Scheme
+ 55 |       background #282828
+ 56 |       foreground #ebdbb2
+ 57 |       selection_background #ebdbb2
+ 58 |       selection_foreground #282828
+ 59 |       url_color #83a598
+ 60 |
+ 61 |       # Colors
+ 62 |       color0 #282828
+ 63 |       color8 #928374
+ 64 |       color1 #cc241d
+ 65 |       color9 #fb4934
+ 66 |       color2  #98971a
+ 67 |       color10 #b8bb26
+ 68 |       color3  #d79921
+ 69 |       color11 #fabd2f
+ 70 |       color4  #458588
+ 71 |       color12 #83a598
+ 72 |       color5  #b16286
+ 73 |       color13 #d3869b
+ 74 |       color6  #689d6a
+ 75 |       color14 #8ec07c
+ 76 |       color7  #a89984
+ 77 |       color15 #fbf1c7
+ 78 |     '';
+ 79 |   };
+ 80 |
+ 81 |   # Basic Desktop Hardware Integration
+ 82 |   hardware.bluetooth.enable = true;
+ 83 |   services.power-profiles-daemon.enable = true;
+ 84 |   services.upower.enable = true;
+ 85 |
+ 86 |   # Network Discovery (Crucial for Wireless/Network Printing detection)
+ 87 |   services.avahi = {
+ 88 |     enable = true;
+ 89 |     nssmdns4 = true; # Modern mDNS resolution for IPv4 network layouts
+ 90 |     # nssmdns6 = true; # Uncomment this if you require IPv6 local host resolution
+ 91 |     openFirewall = true;
+ 92 |   };
+ 93 |
+ 94 |   # Enable CUPS Printing System and Samsung Hardware Drivers
+ 95 |   services.printing = {
+ 96 |     enable = true;
+ 97 |     drivers = with pkgs; [
+ 98 |       samsung-unified-linux-driver
+ 99 |       splix
+100 |     ];
+101 |   };
+102 |
+103 |   # Session Polkit Agent (Handles root privilege prompts for graphical apps)
+104 |   systemd.user.services.polkit-gnome-authentication-agent-1 = {
+105 |     description = "gnome-polkit-authentication-agent";
+106 |     wantedBy = [ "graphical-session.target" ];
+107 |     partOf = [ "graphical-session.target" ];
+108 |     serviceConfig = {
+109 |       Type = "simple";
+110 |       ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+111 |       Restart = "on-failure";
+112 |       RestartSec = 1;
+113 |       TimeoutStopSec = 10;
+114 |     };
+115 |   };
+116 |
+117 |   # Enable High-Fidelity Audio via PipeWire
+118 |   security.rtkit.enable = true;
+119 |   services.pipewire = {
+120 |     enable = true;
+121 |     alsa.enable = true;
+122 |     alsa.support32Bit = true;
+123 |     pulse.enable = true;
+124 |   };
+125 |
+126 |   # Define primary user account
+127 |   users.users.yourusername = { # CHANGE 'yourusername' to your preferred login name
+128 |     isNormalUser = true;
+129 |     description = "Primary User";
+130 |     shell = pkgs.zsh; # Set Zsh as your default interactive login shell
+131 |     extraGroups = [ "networkmanager" "wheel" "video" "lp" "scanner" ];
+132 |   };
+133 |
+134 |   # Allow proprietary software (Required for Steam, Drivers, Stremio, and Pyright)
+135 |   nixpkgs.config.allowUnfree = true;
+136 |
+137 |   # =========================================================================
+138 |   # 2. HARDWARE & GAMING CONFIGURATION
+139 |   # =========================================================================
+140 |
+141 |   # AMD CPU Optimizations & Performance Governor
+142 |   boot.kernelParams = [ "amd_pstate=active" ];
+143 |   powerManagement.cpuFreqGovernor = "performance";
+144 |
+145 |   # AMD GPU Drivers & Vulkan Support
+146 |   hardware.graphics = {
+147 |     enable = true;
+148 |     enable32Bit = true; # Crucial for 32-bit Steam titles
+149 |   };
+150 |
+151 |   # Steam Native Module Configuration
+152 |   programs.steam = {
+153 |     enable = true;
+154 |     remotePlay.openFirewall = true;
+155 |     dedicatedServer.openFirewall = true;
+156 |   };
+157 |
+158 |   # Gamescope Environment Integrations
+159 |   programs.gamescope = {
+160 |     enable = true;
+161 |     capSysNice = true;
+162 |   };
+163 |
+164 |   # OpenRGB System Daemon
+165 |   services.hardware.openrgb = {
+166 |     enable = true;
+167 |     motherboard = "amd";
+168 |   };
+169 |
+170 |   # Automatic OpenRGB Profile Loader on User Login
+171 |   systemd.user.services.openrgb-autostart = {
+172 |     description = "Load default OpenRGB profile on login";
+173 |     wantedBy = [ "graphical-session.target" ];
+174 |     partOf = [ "graphical-session.target" ];
+175 |     serviceConfig = {
+176 |       ExecStart = "${pkgs.openrgb}/bin/openrgb --profile default.orp";
+177 |       Type = "oneshot";
+178 |       RemainAfterExit = true;
+179 |     };
+180 |   };
+181 |
+182 |   # Global MangoHud Configuration Override
+183 |   environment.etc."MangoHud/MangoHud.conf".text = ''
+184 |     toggle_hud=Shift_L+m
+185 |   '';
+186 |
+187 |   # System-wide Neovim Default Handler
+188 |   programs.neovim = {
+189 |     enable = true;
+190 |     defaultEditor = true;
+191 |     viAlias = true;
+192 |     vimAlias = true;
+193 |   };
+194 |
+195 |   # Font Selection for LazyVim Glyphs and Icons
+196 |   fonts.packages = with pkgs; [
+197 |     nerd-fonts.jetbrains-mono
+198 |     nerd-fonts.fira-code
+199 |   ];
+200 |
+201 |   # =========================================================================
+202 |   # 3. ENVIRONMENT & PACKAGES
+203 |   # =========================================================================
+204 |   environment.systemPackages = with pkgs; [
+205 |     # Wayland Modular Desktop Plumbing (Substitutes for a full DE environment)
+206 |     waybar               # Top panel status bar
+207 |     mako                 # Standalone notification daemon
+208 |     swaylock-effects     # Screen locker utility
+209 |     fuzzel               # Keyboard-driven app runner and launcher
+210 |     polkit_gnome         # UI window helper for privilege elevations
+211 |     xwayland-satellite   # Runs legacy X11 binary software windows seamlessly
+212 |
+213 |     # Everyday Applications, Media & Productivity
+214 |     firefox              # Default web browser
+215 |     libreoffice-fresh    # Modern open-source productivity suite
+216 |     kdePackages.kate     # Advanced graphical text editor with built-in LSP engine
+217 |     vlc                  # Versatile media player
+218 |     stremio              # Media streaming application
+219 |     yazi                 # Fast, asynchronous terminal file manager
+220 |     yt-dlp               # Command-line video downloader
+221 |
+222 |     # Reading & Comics (.epub, .pdf, .cbr, .cbz)
+223 |     foliate              # Beautiful, modern GTK ebook viewer
+224 |     yacreader            # Comic book cataloger and frame reader
+225 |     zathura              # Minimalist terminal document runner (and native PDF reader)
+226 |     zathura-cb           # Comic backend extension plugin for Zathura
+227 |
+228 |     # Utilities
+229 |     grim                 # Screen capture utility for Wayland
+230 |     slurp                # Region selection tool for Wayland
+231 |     swappy               # Wayland snapshot editor and annotation tool
+232 |
+233 |     # Gaming & System Tuning
+234 |     protonup-qt          # Automated installer for Proton-GE tools
+235 |     mangohud             # Real-time HUD stats engine for games
+236 |     openrgb              # User control software interface for RGB boards
+237 |     btop                 # Modern, beautiful visual system monitor
+238 |
+239 |     # Base Dependencies for LazyVim Configurations
+240 |     git
+241 |     gnumake
+242 |     gcc
+243 |     ripgrep
+244 |     fd
+245 |     unzip
+246 |     wget
+247 |
+248 |     # Software Engineering Tools & LSPs (Shared across Neovim and Kate)
+249 |     nixd                 # High-efficiency language server for Nix expressions
+250 |     lua-language-server
+251 |     pyright
+252 |     black
+253 |   ];
+254 |
+255 |   # The stable release snapshot identifier for tracking system migrations
+256 |   system.stateVersion = "26.05";
+257 | }
