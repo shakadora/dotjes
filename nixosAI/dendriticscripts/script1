@@ -1,0 +1,301 @@
+# run in bash first
+cp -r /etc/nixos ~/nixos-monolithic-backup
+
+# paste full block in bash
+# 1. Define your current login username
+USER_NAME="$(whoami)"
+
+# 2. Create the modular folder structures locally
+sudo mkdir -p /etc/nixos/system
+sudo mkdir -p /etc/nixos/users/$USER_NAME
+
+# =========================================================================
+# ❄️ CREATING FLAKE MASTER FILE
+# =========================================================================
+sudo tee /etc/nixos/flake.nix > /dev/null << EOF
+{
+  description = "Modular Gaming and Development Flake";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+    nixosConfigurations.nixos-gaming = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./hardware-configuration.nix
+        ./system/boot.nix
+        ./system/display-manager.nix
+        ./system/hardware.nix
+        ./system/networking.nix
+        home-manager.nixosModules.home-manager {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.\${USER_NAME} = import ./users/\${USER_NAME}/home.nix;
+        }
+      ];
+    };
+  };
+}
+EOF
+
+# =========================================================================
+# ⚙️ POPULATING SYSTEM CONFIGURATIONS
+# =========================================================================
+sudo tee /etc/nixos/system/boot.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+}
+EOF
+
+sudo tee /etc/nixos/system/display-manager.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  services.xserver.enable = true;
+  services.displayManager.gdm.enable = true;
+  programs.niri.enable = true;
+}
+EOF
+
+sudo tee /etc/nixos/system/hardware.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  # AMD Tuning
+  boot.kernelParams = [ "amd_pstate=active" ];
+  powerManagement.cpuFreqGovernor = "performance";
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+    extraPackages = [ pkgs.libva-utils ];
+  };
+  hardware.steam-hardware.enable = true;
+
+  # Audio Layer
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+  };
+
+  # Peripheral Sync Services
+  hardware.bluetooth.enable = true;
+  services.power-profiles-daemon.enable = true;
+  services.upower.enable = true;
+  boot.kernelModules = [ "i2c-dev" ];
+  hardware.i2c.enable = true;
+  services.hardware.openrgb.enable = true;
+}
+EOF
+
+sudo tee /etc/nixos/system/networking.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  networking.hostName = "nixos-gaming";
+  networking.networkmanager.enable = true;
+  time.timeZone = "Europe/Brussels";
+  i18n.defaultLocale = "en_US.UTF-8";
+  
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+  services.printing = {
+    enable = true;
+    drivers = with pkgs; [ samsung-unified-linux-driver splix ];
+  };
+}
+EOF
+
+# =========================================================================
+# 🏠 POPULATING HOME MANAGER / USER ENVIRONMENTS
+# =========================================================================
+sudo tee /etc/nixos/users/$USER_NAME/home.nix > /dev/null << EOF
+{ config, pkgs, ... }: {
+  imports = [
+    ./apps.nix
+    ./dev.nix
+    ./media.nix
+    ./terminal.nix
+    ./fun.nix
+  ];
+
+  users.users.${USER_NAME} = {
+    isNormalUser = true;
+    description = "Primary User";
+    shell = pkgs.zsh;
+    extraGroups = [ "networkmanager" "wheel" "video" "lp" "scanner" "gamemode" ];
+  };
+
+  nixpkgs.config.allowUnfree = true;
+  home.username = "${USER_NAME}";
+  home.homeDirectory = "/home/${USER_NAME}";
+  home.stateVersion = "26.05";
+}
+EOF
+
+sudo tee /etc/nixos/users/$USER_NAME/apps.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  home.packages = with pkgs; [
+    firefox
+    libreoffice-fresh
+    heroic
+    lutris
+  ];
+  programs.steam.enable = true;
+  programs.gamemode.enable = true;
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;
+  };
+}
+EOF
+
+sudo tee /etc/nixos/users/$USER_NAME/media.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  home.packages = with pkgs; [
+    vlc
+    mpv
+    stremio-linux-shell
+    foliate
+    yacreader
+    zathura
+    imv
+    loupe
+    nsxiv
+  ];
+}
+EOF
+
+sudo tee /etc/nixos/users/$USER_NAME/dev.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  home.packages = with pkgs; [
+    kdePackages.kate
+    git
+    gnumake
+    gcc
+    ripgrep
+    fd
+    unzip
+    wget
+    nixd
+    lua-language-server
+    pyright
+    black
+  ];
+
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+  };
+
+  fonts.fontconfig.enable = true;
+  home.packages = [
+    pkgs.nerd-fonts.jetbrains-mono
+    pkgs.nerd-fonts.fira-code
+    pkgs.noto-fonts-emoji
+  ];
+}
+EOF
+
+sudo tee /etc/nixos/users/$USER_NAME/terminal.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  home.packages = with pkgs; [
+    tmux
+    yazi
+    yt-dlp
+    ytfzf
+    yewtube
+    grim
+    slurp
+    swappy
+    lazygit
+    bat
+    fzf
+    trash-cli
+    nix-index
+  ];
+
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+    shellAliases = {
+      rebuild = "sudo nixos-rebuild switch --flake /etc/nixos/#nixos-gaming";
+      cd = "z";
+      ls = "eza --icons --git --heading";
+    };
+  };
+
+  programs.zoxide.enable = true;
+  programs.eza.enable = true;
+
+  programs.kitty = {
+    enable = true;
+    extraConfig = ''
+      background #282828
+      foreground #ebdbb2
+      selection_background #ebdbb2
+      selection_foreground #282828
+      url_color #83a598
+
+      color0 #282828
+      color8 #928374
+      color1 #cc241d
+      color9 #fb4934
+      color2  #98971a
+      color10 #b8bb26
+      color3  #d79921
+      color11 #fabd2f
+      color4  #458588
+      color12 #83a598
+      color5  #b16286
+      color13 #d3869b
+      color6  #689d6a
+      color14 #8ec07c
+      color7  #a89984
+      color15 #fbf1c7
+    '';
+  };
+}
+EOF
+
+sudo tee /etc/nixos/users/$USER_NAME/fun.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  home.packages = with pkgs; [
+    cava
+    cmatrix
+    fastfetch
+    lolcat
+    pipes-rs
+    cbonsai
+    asciiquarium
+    cowsay
+    fortune
+    peaclock
+    pavucontrol
+    playerctl
+  ];
+  
+  systemd.user.services.openrgb-autostart = {
+    Unit = { Description = "Load default OpenRGB profile on login"; };
+    Install = { WantedBy = [ "graphical-session.target" ]; };
+    Service = {
+      ExecStart = "${pkgs.openrgb}/bin/openrgb --profile default.orp";
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
+}
+EOF
+
+echo "🌿 Tree built successfully!"
