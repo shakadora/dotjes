@@ -1,0 +1,25 @@
+## 🛠️ One-Time Post-Install Step for Kate LSP Integration
+Kate contains an integrated LSP client plugin, but it must be enabled manually in the application settings interface after your first boot: [5, 6, 7, 8]
+
+   1. Open Kate.
+   2. Navigate to Settings → Configure Kate...
+   3. Select Plugins from the left-hand column and click the checkbox next to LSP Client.
+   4. Go to the new LSP Client settings page that appears in the sidebar and view the User Server Settings tab.
+   5. Paste this quick JSON text layout to point Kate directly to the Nix Language Server you have deployed system-wide:
+
+   {
+       "servers": {
+           "nix": {
+               "command": ["nixd"],
+               "root": "",
+               "highlightingModeRegex": "^Nix$"
+           }
+       }
+   }
+
+
+
+💡 Quick Post-Install Slideshow Tips:
+
+imv: Run imv -t 3 /path/to/folder in your terminal to start a loop where image files change automatically every 3 seconds.
+nsxiv: Open a folder with nsxiv /path/to/folder, press Enter to open a picture, and press Ctrl+s to activate the automatic slideshow module.
