@@ -1,9 +1,117 @@
-# one by one
-sudo mv /etc/nixos/configuration.nix ~/configuration.nix.old
+# full block 
 
+# =========================================================================
+# 🏠 STREAMLINED TERMINAL & FUN COMPONENT MAPS
+# =========================================================================
+sudo tee /etc/nixos/users/$USER_NAME/terminal.nix > /dev/null << 'EOF'
+{ config, pkgs, inputs, ... }: {
+  home.packages = [
+    # Injected direct-from-Git upstream architecture packages
+    inputs.noctalia.packages.${pkgs.system}.default
+    inputs.nixmate.packages.${pkgs.system}.default
+
+    # Core system tools
+    pkgs.tmux
+    pkgs.yazi
+    pkgs.yt-dlp
+    pkgs.ytfzf
+    pkgs.yewtube
+    pkgs.grim
+    pkgs.slurp
+    pkgs.swappy
+    pkgs.lazygit
+    pkgs.bat
+    pkgs.fzf
+    pkgs.trash-cli
+    pkgs.nix-index
+  ];
+
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestions.enable = true;
+    syntaxHighlighting.enable = true;
+    shellAliases = {
+      rebuild = "sudo nixos-rebuild switch --flake /etc/nixos/#nixos-gaming";
+      cd = "z";
+      ls = "eza --icons --git --heading";
+    };
+  };
+
+  programs.zoxide.enable = true;
+  programs.eza.enable = true;
+
+  programs.kitty = {
+    enable = true;
+    extraConfig = ''
+      background #282828
+      foreground #ebdbb2
+      selection_background #ebdbb2
+      selection_foreground #282828
+      url_color #83a598
+
+      color0 #282828
+      color8 #928374
+      color1 #cc241d
+      color9 #fb4934
+      color2  #98971a
+      color10 #b8bb26
+      color3  #d79921
+      color11 #fabd2f
+      color4  #458588
+      color12 #83a598
+      color5  #b16286
+      color13 #d3869b
+      color6  #689d6a
+      color14 #8ec07c
+      color7  #a89984
+      color15 #fbf1c7
+    '';
+  };
+}
+EOF
+
+sudo tee /etc/nixos/users/$USER_NAME/fun.nix > /dev/null << 'EOF'
+{ config, pkgs, ... }: {
+  home.packages = with pkgs; [
+    cava
+    cmatrix
+    fastfetch
+    lolcat
+    pipes-rs
+    cbonsai
+    asciiquarium
+    cowsay
+    fortune
+    peaclock
+    pavucontrol
+    playerctl
+  ];
+  
+  systemd.user.services.openrgb-autostart = {
+    Unit = { Description = "Load default OpenRGB profile on login"; };
+    Install = { WantedBy = [ "graphical-session.target" ]; };
+    Service = {
+      ExecStart = "${pkgs.openrgb}/bin/openrgb --profile default.orp";
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
+}
+EOF
+
+echo "🎉 Complete advanced dendritic pattern deployed! Noctalia & Nixmate staged."
+
+
+
+# 1. Back up your old layout if you haven't yet
+sudo mv /etc/nixos/configuration.nix ~/configuration.nix.old 2>/dev/null
+
+# 2. Stage the newly split modular tree structures to your local repository tracking map
 cd /etc/nixos
-sudo git init
+sudo git init 2>/dev/null
 sudo git add .
 
+# 3. Fire up the upgrade switch loop
 sudo nixos-rebuild switch --flake /etc/nixos/#nixos-gaming
 
