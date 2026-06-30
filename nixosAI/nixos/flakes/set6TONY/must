@@ -1,0 +1,10 @@
+🚀 Activating the Symlink StructureTo roll out the configuration changes, create your local tracking paths, move your live setup scripts there, and execute your build profile:bash# 1. Create the local repository target folder
+mkdir -p ~/nixos-config/config/niri
+
+# 2. Write your default startup file inside the active repository target
+echo 'spawn-at-startup "noctalia"' > ~/nixos-config/config/niri/config.kdl
+
+# 3. Track and activate your system configuration
+git add .
+sudo nixos-rebuild switch --flake .#nixos-gaming
+Use code with caution.Any changes you make locally inside ~/nixos-config/config/niri/config.kdl or your Kitty folder will instantly affect your system without requiring a nixos-rebuild switch run.
