@@ -1,0 +1,12 @@
+~/nixos-config/
+├── flake.nix
+├── configuration.nix
+├── hardware-configuration.nix
+├── home.nix
+├── modules/
+│   └── neovim.nix
+└── config/             <-- Put your regular, untracked raw dotfiles here
+    ├── kitty/
+    │   └── kitty.conf
+    └── niri/
+        └── config.kdl
