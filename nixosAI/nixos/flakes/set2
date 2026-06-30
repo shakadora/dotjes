@@ -1,0 +1,359 @@
+#To implement this, we will create a dedicated shared-packages.nix file.
+
+#This file handles your requested system-wide applications. We will also remove alacritty completely and add kitty as your global terminal.
+
+#Steam is a special case on NixOS. Because it requires low-level system permissions, kernel modifications, and custom network firewall ports, it must remain configured via programs.steam.enable in the main system settings rather than as a raw package list. The firewall configuration has been cleanly preserved to ensure Steam works correctly for both users.
+
+#Here is your updated 5-file configuration.
+
+
+
+# 1. shared-packages.nix (New File)
+
+# Create this file in your configuration directory. It cleanly isolates the programs you want both users to share.
+
+{ pkgs, ... }:
+
+ 
+
+{
+
+  environment.systemPackages = with pkgs; [
+
+    firefox
+
+    vlc
+
+    kitty    # Replaces alacritty globally
+
+    neovim
+
+    kate
+
+  ];
+
+}
+
+# 2. flake.nix
+
+# This remains the central entry point, pointing to your dual-user home profiles. [1]
+
+{
+
+  description = "NixOS Flake for Dual-User Niri and Plasma Setup";
+
+ 
+
+  inputs = {
+
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+
+    home-manager = {
+
+      url = "github:nix-community/home-manager/release-26.05";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+
+    };
+
+  };
+
+ 
+
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+
+    nixosConfigurations = {
+
+      nixos-gaming = nixpkgs.lib.nixosSystem {
+
+        system = "x86_64-linux";
+
+        modules = [
+
+          ./configuration.nix
+
+ 
+
+          home-manager.nixosModules.home-manager
+
+          {
+
+            home-manager.useGlobalPkgs = true;
+
+            home-manager.useUserPackages = true;
+
+            home-manager.users.MAIN_USER = import ./home-main.nix;
+
+            home-manager.users.PLASMA_USER = import ./home-plasma.nix;
+
+          }
+
+        ];
+
+      };
+
+    };
+
+  };
+
+}
+
+# 3. configuration.nix
+
+# This file now imports ./shared-packages.nix at the top. It keeps the critical gaming hardware drivers (AMD RDNA3 / X3D) and manages the Steam configuration globally.
+
+{ config, pkgs, ... }:
+
+ 
+
+{
+
+  imports = [
+
+    ./hardware-configuration.nix
+
+    ./shared-packages.nix # Imports your new shared application module
+
+  ];
+
+ 
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+ 
+
+  # Bootloader configurations
+
+  boot.loader.systemd-boot.enable = true;
+
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+ 
+
+  # Networking
+
+  networking.hostName = "nixos-gaming";
+
+  networking.networkmanager.enable = true;
+
+ 
+
+  # Locale configurations
+
+  time.timeZone = "Europe/Brussels";
+
+  i18n.defaultLocale = "en_US.UTF-8";
+
+ 
+
+  # Sound
+
+  hardware.pulseaudio.enable = false;
+
+  services.pipewire = {
+
+    enable = true;
+
+    alsa.enable = true;
+
+    alsa.support32Bit = true;
+
+    pulse.enable = true;
+
+  };
+
+ 
+
+  # Graphics Drivers & AMD Optimizations
+
+  hardware.graphics = {
+
+    enable = true;
+
+    enable32Bit = true;
+
+  };
+
+  services.xserver.videoDrivers = [ "amdgpu" ];
+
+  hardware.amdgpu = {
+
+    opencl.enable = true;
+
+    amdvlk.enable = false;
+
+  };
+
+  hardware.cpu.amd.updateMicrocode = true;
+
+ 
+
+  # Graphical Environments Configuration
+
+  services.desktopManager.plasma6.enable = true;
+
+  services.displayManager.sddm.enable = true;
+
+  services.displayManager.sddm.wayland.enable = true;
+
+  programs.niri.enable = true;
+
+ 
+
+  # User Account Definitions
+
+  users.users.MAIN_USER = {
+
+    isNormalUser = true;
+
+    description = "Primary Gaming Account running Niri";
+
+    extraGroups = [ "wheel" "networkmanager" "input" ];
+
+  };
+
+ 
+
+  users.users.PLASMA_USER = {
+
+    isNormalUser = true;
+
+    description = "Secondary Account running KDE Plasma";
+
+    extraGroups = [ "networkmanager" ];
+
+  };
+
+ 
+
+  # Essential low-level core system utilities
+
+  environment.systemPackages = with pkgs; [
+
+    git
+
+    wget
+
+    glxinfo
+
+    pciutils
+
+    vulkan-tools
+
+  ];
+
+ 
+
+  # Steam must be managed as a system service for proper driver hook-ins [1]
+
+  programs.steam = {
+
+    enable = true;
+
+    remotePlay.openFirewall = true;
+
+    dedicatedServer.openFirewall = true;
+
+  };
+
+  networking.firewall.allowedUDPPorts = [ 27031 27036 ];
+
+ 
+
+  system.stateVersion = "26.05";
+
+}
+
+# 4. home-main.nix
+
+# alacritty has been stripped out. This profile now strictly handles your user-specific tiling tools and gaming launchers.
+
+{ config, pkgs, ... }:
+
+ 
+
+{
+
+  home.username = "MAIN_USER";
+
+  home.homeDirectory = "/home/MAIN_USER";
+
+ 
+
+  home.packages = with pkgs; [
+
+    mangohud     
+
+    heroic       
+
+    lutris       
+
+    bottles      
+
+    discord      
+
+    fuzzel        # Wayland application launcher
+
+    waybar        # Status bar module
+
+  ];
+
+ 
+
+  programs.home-manager.enable = true;
+
+ 
+
+  home.sessionVariables = {
+
+    NIXOS_OZONE_WL = "1";
+
+  };
+
+ 
+
+  home.stateVersion = "26.05";
+
+}
+
+# 5. home-plasma.nix
+
+# Since its apps were moved to the global shared file, this user profile is now fully empty and clean, waiting for any specific configurations you want to add later. [2]
+
+{ config, pkgs, ... }:
+
+ 
+
+{
+
+  home.username = "PLASMA_USER";
+
+  home.homeDirectory = "/home/PLASMA_USER";
+
+ 
+
+  home.packages = with pkgs; [
+
+    # Add any Plasma-user-only packages here in the future
+
+  ];
+
+ 
+
+  programs.home-manager.enable = true;
+
+  home.stateVersion = "26.05";
+
+}
+
+# Applying the Changes
+
+# Remember to stage your new file to your git repository so the flake evaluator can find it: [3]
+
+# cd /etc/nixos
+
+# git add shared-packages.nix home-main.nix home-plasma.nix
+
+# sudo nixos-rebuild switch --flake .#nixos-gaming
