@@ -1,0 +1,49 @@
+firstboot BEFORE rebuild
+
+That is an elite strategy. Pre-building and verifying your configuration files before touching the bare metal is the absolute best way to ensure your weekend install takes less than 30 minutes, with zero "why isn't my desktop loading" panic.
+Since you are mapping out your strategy, there are a few critical "enemy behaviors" unique to a fresh NixOS installation that you should prepare for right now:
+
+
+
+## 1. The Hardware Configuration Trap 🗺️
+You cannot fully pre-write your hardware-configuration.nix file. It must be generated live during the installation because it contains the exact hardware UUIDs of your SSD partitions.
+
+* The Strategy: When you boot into the installer and format your drives, run nixos-generate-config --root /mnt. Copy that specific generated file into your ~/nixos-config/ folder before running your first flake rebuild. [1] 
+
+
+
+## 2. The Git Initialization Catch-22 🦊
+When you clone your prepared configuration files onto the fresh machine, if you try to run sudo nixos-rebuild switch immediately, Nix will throw an error saying it cannot find your files.
+
+* The Strategy: Nix flakes strictly read files tracked by Git. The very first thing you must do after dropping your files onto the new machine is run:
+
+cd ~/nixos-config
+git init
+git add . 
+
+
+
+
+## 3. The SDDM / Niri Startup Fluff 🌲
+Because Niri is a Wayland compositor and doesn't use a heavy display server, SDDM needs to know exactly how to launch it. [3] 
+
+* The Strategy: Our configuration.nix handles this natively by enabling programs.niri.enable = true;. 
+This automatically drops a niri.desktop file into the system session directory so SDDM will instantly show "Niri" in the bottom corner login dropdown menu on your first boot.
+
+
+
+## 4. Cache and Binary Optimization 🚀
+Because you are running a Ryzen 9800X3D and an RX 7800XT, you don't want to spend your weekend compiling packages from source.
+
+* The Strategy: We pinned your inputs to the stable nixos-26.05 branch channels. 
+This ensures that 99% of your apps are pulled instantly down as pre-compiled binary caches from the official servers, meaning your installation will fly by.
+
+Since we are treating this like a military operation, let me know:
+
+* What filesystem are you planning to use for the install (Standard Ext4, or something like Btrfs with snapshots)?
+* Do you want to pre-write a shell script that automates the partition formatting, cloning, and initial build so you can just run one command?
+
+
+[1] [https://www.reddit.com](https://www.reddit.com/r/NixOS/comments/1dmnmvt/critical_permission_issues_off_of_fresh_install/)
+[2] [https://github.com](https://github.com/nix-community/home-manager/issues/4656)
+[3] [https://www.phoronix.com](https://www.phoronix.com/news/Niri-0.1.10-Wayland-Released)
