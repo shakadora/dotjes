@@ -1,0 +1,57 @@
+For a 2TB NVMe gaming drive running Btrfs on NixOS, the target is a layout that facilitates fast gaming, ensures zero-space system rollback snapshots, and safely excludes your heavy Steam library from those snapshots to prevent volume inflation. [1] 
+When using the NixOS graphical installer, select Manual Partitioning, click on your empty NVMe drive, and build the following exact partition scheme: [2] 
+## 🗺️ The 2-Partition Physical Layout
+You only need two physical partitions on the disk: [1, 3] 
+
+| Partition Name [1, 4] | Size | Type / Format | Mount Point | Purpose |
+|---|---|---|---|---|
+| boot | 1 GB | FAT32 | /boot | Holds the EFI system boot files and kernel layers. |
+| btrfs-pool | Remainder (1.9+ TB) | Btrfs | (No direct mount) | The massive shared storage block for your system, user, and games. |
+
+------------------------------
+## 📦 The Btrfs Subvolume Map (Inside the Pool)
+Inside the btrfs-pool partition, the graphical installer will automatically handle or let you configure Subvolumes. Subvolumes act like directories but allow flexible, distinct snapshot behaviors. Configure them as follows: [5, 6, 7, 8] 
+
+* @ (Mounted to /): Holds your system-wide root data.
+* @home (Mounted to /home): Houses your active user environment files.
+* @nix (Mounted to /nix): Strictly isolates the Nix Store storage tier.
+* @games (Mounted to /home/yourusername/.local/share/Steam): Critical Gaming Subvolume. This maps explicitly to your core Steam installation folder. [4, 5, 6] 
+
+## Why isolating @games matters 🎮
+By keeping your Steam folder inside its own isolated subvolume, automated backup tools (like Timeshift or Snapper) can snapshot your entire system root (/) and home folder (/home) daily. If a system upgrade breaks your window manager, you can instantly roll back the operating system state, while your 1.5TB game library remains completely untouched and perfectly safe on disk without snapshot overhead. [1, 5] 
+------------------------------
+## 🛠️ Optimization Mounting Options (In configuration.nix)
+Once the graphical installer completes, its generated hardware-configuration.nix file will map your paths. Ensure the mounting properties include your Zstd transparent compression settings and performance parameters: [9] 
+
+# Example of what your optimized Btrfs drive mounts look like
+fileSystems."/" = {
+  device = "/dev/disk/by-uuid/your-nvme-uuid";
+  fsType = "btrfs";
+  options = [ "subvol=@" "compress=zstd:3" "noatime" ]; # zstd:3 balances maximum speed with efficient scaling
+};
+
+fileSystems."/home" = {
+  device = "/dev/disk/by-uuid/your-nvme-uuid";
+  fsType = "btrfs";
+  options = [ "subvol=@home" "compress=zstd:3" "noatime" ];
+};
+
+fileSystems."/nix" = {
+  device = "/dev/disk/by-uuid/your-nvme-uuid";
+  fsType = "btrfs";
+  options = [ "subvol=@nix" "compress=zstd:3" "noatime" "nodatacow" ]; # "nodatacow" optimizes the heavy database indexing of the Nix store
+};
+
+## 🧠 A Note on SWAP
+Since you are using a top-tier gaming PC with likely 32GB+ of fast DDR5 RAM, skip a physical Swap partition entirely. If an indie game ever leaks memory down the line and demands swap space, you can easily use NixOS options to declaratively drop a virtual Swap File onto your Btrfs drive later without re-partitioning. [4] 
+Would you like to pre-write a Btrfs snapshot automation script using Timeshift or Snapper to automatically safeguard your configuration files during your installation weekend?
+
+[1] [https://www.reddit.com](https://www.reddit.com/r/linux_gaming/comments/1nslp6o/how_do_you_all_have_your_linux_filesystems_set_up/)
+[2] [https://discourse.nixos.org](https://discourse.nixos.org/t/install-nixos-with-btrfs-lvm-on-luks-using-tpm2-to-start-up-with-support-for-suspend-to-disk/59735)
+[3] [https://www.reddit.com](https://www.reddit.com/r/pop_os/comments/smlxth/pop_os_partitions_what_are_the_things_to_keep_in/)
+[4] [https://www.reddit.com](https://www.reddit.com/r/linux_gaming/comments/1fgfnrn/partition_layout_suggestions/)
+[5] [https://www.ordinatechnic.com](https://www.ordinatechnic.com/distribution-specific-guides/fedora/a-fedora-installation-with-an-opensuse-style-btrfs-subvolume-layout-and-snapper-integration-for-system-snapshots-and-rollbacks)
+[6] [https://beardedtek.org](https://beardedtek.org/my-nixos-journey-pt-2/)
+[7] [https://www.jwillikers.com](https://www.jwillikers.com/btrfs-layout)
+[8] [https://www.reddit.com](https://www.reddit.com/r/linuxquestions/comments/1mujfsa/so_whats_the_right_way_to_partition_linux_after/)
+[9] [https://discussion.fedoraproject.org](https://discussion.fedoraproject.org/t/minimal-partition-layout-uefi-system-with-btrfs-volume/134472)
