@@ -1,7 +1,19 @@
 { config, pkgs, ... }:
 
+let
+  # Path to your active user dotfiles directory
+  dotfiles = "${config.home.homeDirectory}/nixos-config/config";
+  
+  # Helper mapping function to generate out-of-store targets
+  create_symlink = path: config.lib.file.mkOutOfStoreSymlink path;
+
+  # Define your custom application configuration folders here
+  configs = {
+    niri  = "niri";
+    kitty = "kitty";
+  };
+in
 {
-  # Import modular configurations from subdirectories
   imports = [
     ./modules/neovim.nix
   ];
@@ -9,59 +21,21 @@
   home.username = "yourusername"; # CHANGE 'yourusername'
   home.homeDirectory = "/home/yourusername";
 
-  # User-facing applications (minus isolated neovim dependencies)
+  # User-facing applications
   home.packages = with pkgs; [
-    # Shell, UI & Basics
-    noctalia-shell
-    waybar
-    mako
-    swaylock-effects
-    polkit_gnome
-    xwayland-satellite
-    xdg-utils
-    kitty
-    tmux
-
-    # Gaming & System Monitoring
-    mangohud
-    protonup-qt
-    heroic
-    lutris
-    openrgb
-    btop
-    pavucontrol
-    playerctl
-
-    # Productivity & Media Viewers
-    firefox
-    libreoffice-fresh
-    kdePackages.kate
-    vlc
-    mpv
-    stremio-linux-shell
-    
-    # CLI Utilities
-    zoxide
-    eza
-    lazygit
-    bat
-    fzf
-    trash-cli
-    nix-index
-    cava
-    fastfetch
-    yazi
-    grim
-    slurp
-    swappy
-    zathura
-    imv
+    noctalia-shell waybar mako swaylock-effects polkit_gnome 
+    xwayland-satellite xdg-utils kitty tmux
+    mangohud protonup-qt heroic lutris openrgb btop pavucontrol playerctl
+    firefox libreoffice-fresh kdePackages.kate vlc mpv stremio-linux-shell
+    zoxide eza lazygit bat fzf trash-cli nix-index cava fastfetch yazi 
+    grim slurp swappy zathura imv
   ];
 
-  # Niri Shell Initialization
-  xdg.configFile."niri/config.kdl".text = ''
-    spawn-at-startup "noctalia"
-  '';
+  # Map the defined configurations recursively to ~/.config/
+  xdg.configFile = builtins.mapAttrs (name: subpath: {
+    source = create_symlink "${dotfiles}/${subpath}";
+    recursive = true;
+  }) configs;
 
   programs.git.enable = true;
   programs.home-manager.enable = true;
