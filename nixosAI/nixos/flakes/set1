@@ -1,0 +1,305 @@
+# Here is a modern, modular configuration split into flake.nix, configuration.nix, and home.nix. [1]
+
+# This setup uses the stable 26.05 release branch, points correctly to your hardware-configuration.nix, and sets up Home Manager via Flakes. [2, 3]
+
+# 1. flake.nix
+
+# This is the entry point for your system. Place this file in your root configuration directory (usually /etc/nixos/). [4, 5, 6, 7]
+
+{
+
+  description = "NixOS Flake for 9800X3D + 7800XT Gaming PC";
+
+ 
+
+  inputs = {
+
+    # NixOS official package source, using the current stable release
+
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+
+ 
+
+    # Home Manager for user-space configuration
+
+    home-manager = {
+
+      url = "github:nix-community/home-manager/release-26.05";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+
+    };
+
+  };
+
+ 
+
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+
+    nixosConfigurations = {
+
+      # Change "nixos-gaming" to your preferred hostname if desired
+
+      nixos-gaming = nixpkgs.lib.nixosSystem {
+
+        system = "x86_64-linux";
+
+        modules = [
+
+          ./configuration.nix
+
+ 
+
+          # Import home-manager as a module inside the system configuration
+
+          home-manager.nixosModules.home-manager
+
+          {
+
+            home-manager.useGlobalPkgs = true;
+
+            home-manager.useUserPackages = true;
+
+            # Change "YOUR_USERNAME" to match your actual username
+
+            home-manager.users.YOUR_USERNAME = import ./home.nix;
+
+          }
+
+        ];
+
+      };
+
+    };
+
+  };
+
+}
+
+# 2. configuration.nix
+
+# This file handles your system-level hardware drivers, system daemons, audio, kernel configurations, and global options. [8, 9]
+
+{ config, pkgs, ... }:
+
+ 
+
+{
+
+  imports = [
+
+    # Points directly to your hardware configuration file
+
+    ./hardware-configuration.nix
+
+  ];
+
+ 
+
+  # Enable Flakes and the 'nix' command line tool
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+ 
+
+  # Bootloader configurations
+
+  boot.loader.systemd-boot.enable = true;
+
+  boot.loader.efi.canTouchEfiVariables = true;
+
+ 
+
+  # Latest kernel for optimal 9800X3D cache behavior and RDNA3 (7800 XT) support
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+ 
+
+  # Networking
+
+  networking.hostName = "nixos-gaming";
+
+  networking.networkmanager.enable = true;
+
+ 
+
+  # Locale configurations
+
+  time.timeZone = "Europe/Brussels";
+
+  i18n.defaultLocale = "en_US.UTF-8";
+
+ 
+
+  # Enable sound using Pipewire
+
+  hardware.pulseaudio.enable = false;
+
+  services.pipewire = {
+
+    enable = true;
+
+    alsa.enable = true;
+
+    alsa.support32Bit = true;
+
+    pulse.enable = true;
+
+  };
+
+ 
+
+  # Enable modern Graphics API and 32-bit driver architecture
+
+  hardware.graphics = {
+
+    enable = true;
+
+    enable32Bit = true; # Crucial for 32-bit Wine/Steam titles
+
+  };
+
+ 
+
+  # AMD GPU Optimizations
+
+  services.xserver.videoDrivers = [ "amdgpu" ];
+
+  hardware.amdgpu = {
+
+    opencl.enable = true;
+
+    amdvlk.enable = false; # Prefers the more performant Mesa RADV driver over AMDVLK
+
+  };
+
+ 
+
+  # CPU Microcode updates for safety and stability
+
+  hardware.cpu.amd.updateMicrocode = true;
+
+ 
+
+  # User account definition
+
+  users.users.YOUR_USERNAME = {
+
+    isNormalUser = true;
+
+    extraGroups = [ "wheel" "networkmanager" "input" ];
+
+  };
+
+ 
+
+  # Global system packages (mostly hardware/system utils)
+
+  environment.systemPackages = with pkgs; [
+
+    git
+
+    wget
+
+    glxinfo
+
+    pciutils
+
+    vulkan-tools
+
+  ];
+
+ 
+
+  # Steam configuration (Must be configured at system level for firewall rules)
+
+  programs.steam = {
+
+    enable = true;
+
+    remotePlay.openFirewall = true;
+
+    dedicatedServer.openFirewall = true;
+
+  };
+
+ 
+
+  networking.firewall.allowedTCPPorts = [];
+
+  networking.firewall.allowedUDPPorts = [ 27031 27036 ];
+
+ 
+
+  system.stateVersion = "26.05";
+
+}
+
+# 3. home.nix
+
+# This manages user-specific dotfiles, local gaming applications, environment variables, and user-space utilities. [10, 11, 12]
+
+{ config, pkgs, ... }:
+
+ 
+
+{
+
+  # Change this to match your actual username
+
+  home.username = "YOUR_USERNAME";
+
+  home.homeDirectory = "/home/YOUR_USERNAME";
+
+ 
+
+  # User-specific package installations (Gaming tools & User apps)
+
+  home.packages = with pkgs; [
+
+    mangohud      # Performance overlay
+
+    heroic        # Epic Games / GOG launcher
+
+    lutris        # General gaming manager
+
+    bottles       # Isolated Wine environments
+
+    discord       # Chat application
+
+  ];
+
+ 
+
+  # Basic user configurations
+
+  programs.home-manager.enable = true;
+
+ 
+
+  # Environment variables for your user session
+
+  home.sessionVariables = {
+
+    # Force apps to use Wayland natively if you choose a Wayland compositor later
+
+    NIXOS_OZONE_WL = "1";
+
+  };
+
+ 
+
+  home.stateVersion = "26.05";
+
+}
+
+# How to apply this configuration:
+#
+#    Ensure your existing hardware-configuration.nix is in the same directory.
+#    Replace YOUR_USERNAME with your actual Linux user name in all files.
+#    Track all files in git (Flakes will ignore files not tracked by Git):
+#    git init
+#    git add flake.nix configuration.nix home.nix hardware-configuration.nix
+#    Build the system using the flake target:
+#    sudo nixos-rebuild switch --flake .#nixos-gaming
