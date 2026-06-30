@@ -9,7 +9,7 @@
     firefox
     neovim
     htop
-    alacritty # Recommended default terminal for Niri
+    kitty     # Replaced alacritty with kitty
     fuzzel    # Recommended lightweight application launcher for Niri
   ];
 
