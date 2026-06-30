@@ -1,0 +1,7 @@
+in bash, terwijl in etc/nixos (of aangemaakte symlink folder geloof ik) : 
+
+git add .
+nix flake update
+sudo nixos-rebuild switch --flake .#nixos
+
+
