@@ -1,0 +1,137 @@
+# To add the Noctalia Shell (a modern, unified Wayland panel, launcher, and notification daemon) for your MAIN_USER running Niri, we can integrate it seamlessly with your existing live mkOutOfStoreSymlink configuration loop.
+
+# Because Noctalia functions as an all-in-one shell replacement, we will also remove waybar and fuzzel from your user packages since Noctalia natively provides its own beautiful bar, launcher, and control center.
+
+# Here are the updated configuration details.
+
+# 1. Update home-main.nix
+
+# This configuration adds noctalia-shell to the package array, strips out the unneeded waybar/fuzzel components, and appends "noctalia" = "noctalia"; to the live-symlink matrix loop.
+
+{ config, pkgs, ... }:
+
+ 
+
+let
+
+  dotfiles = "${config.home.homeDirectory}/nixos-dotfiles/config";
+
+  create_symlink = path: config.lib.file.mkOutOfStoreSymlink path;
+
+ 
+
+  # Expanded to watch and dynamically live-link your Noctalia configurations
+
+  configs = {
+
+    niri = "niri";
+
+    kitty = "kitty";
+
+    noctalia = "noctalia"; # Maps ~/.config/noctalia to ~/nixos-dotfiles/config/noctalia
+
+  };
+
+in {
+
+  home.username = "MAIN_USER";
+
+  home.homeDirectory = "/home/MAIN_USER";
+
+ 
+
+  home.packages = with pkgs; [
+
+    noctalia-shell # Unified bar, launcher, and notification daemon
+
+    mangohud     
+
+    heroic       
+
+    lutris       
+
+    bottles      
+
+    discord      
+
+    # fuzzel and waybar removed as Noctalia natively replaces them
+
+  ];
+
+ 
+
+  # Iterates and assigns the active directories
+
+  xdg.configFile = builtins.mapAttrs (name: subpath: {
+
+    source = create_symlink "${dotfiles}/${subpath}";
+
+    recursive = true;
+
+  }) configs;
+
+ 
+
+  programs.home-manager.enable = true;
+
+ 
+
+  home.sessionVariables = {
+
+    NIXOS_OZONE_WL = "1";
+
+  };
+
+ 
+
+  home.stateVersion = "26.05";
+
+}
+
+# 2. Create the Local Noctalia Config Structure
+
+# Before triggering your rebuild, you must initialize the new configuration directory structure inside your user workspace, or Home Manager will throw an evaluation error. Run these terminal commands as your MAIN_USER:
+
+# Create the physical directory inside your tracked dotfiles repo
+
+# mkdir -p ~/nixos-dotfiles/config/noctalia
+
+ 
+
+# Generate an empty config file for the symlink target
+
+# touch ~/nixos-dotfiles/config/noctalia/noctalia.toml
+
+# 3. Automatically Launch Noctalia on Niri Startup
+
+# Because Noctalia should boot immediately when your Niri compositor starts, you should add an spawn-on-startup directive directly inside your Niri configuration file (~/nixos-dotfiles/config/niri/config.kdl):
+
+# spawn-on-startup "noctalia-shell"
+
+# Additionally, according to the Noctalia Documentation, you should add these debug and layout rules inside config.kdl to allow smooth window animations and coordinate the desktop overview backdrop:
+
+# window-rule {
+
+#     geometry-corner-radius 16
+
+#     clip-to-geometry true
+
+}
+
+ 
+
+debug {
+
+    // Allows Noctalia's launcher to smoothly manage window layer focus
+
+    honor-xdg-activation-with-invalid-serial
+
+}
+
+4. Rebuild the Flake Configuration
+
+Rebuild your workspace to finish applying the environment updates:
+
+sudo nixos-rebuild switch --flake /etc/nixos/#nixos-gaming
+
+Once you log back into your Niri profile via SDDM, Noctalia Shell will initialize automatically, providing a unified top panel, audio mixer widgets, notification handling, and full app management out of the box!
