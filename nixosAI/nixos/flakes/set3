@@ -1,0 +1,173 @@
+
+
+#  https://www.tonybtw.com/tutorial/nixos-from-scratch/ this guy describes a way to symlink his entire configuration collection in an elegant way. can this be set up?
+
+# 12:58
+
+# Yes, we can absolutely set this up. The method Tony uses leverages Home Manager's config.lib.file.mkOutOfStoreSymlink helper function combined with a Nix builtins.mapAttrs loop.
+
+#This is highly recommended for dotfiles like Kitty and Niri. Instead of copying your configuration files into the read-only Nix store every time you build, Home Manager creates a live symlink pointing straight to a dotfiles folder inside your home directory. This means you can edit your Kitty or Niri configurations normally, save the file, and your changes will apply instantly without needing to run sudo nixos-rebuild switch every time.
+
+#We can seamlessly add this logic into your existing structure. Assuming you want to store your raw dotfiles in a folder named ~/nixos-dotfiles/config/ (or any path you prefer), here is how your updated configuration files will look.
+
+# 1. home-main.nix (With Extensible Symlink Loop)
+
+# We will add a let...in block at the top to declare your configuration directory and automatically map out the live symlinks for Niri and Kitty.
+
+# nix
+
+{ config, pkgs, ... }:
+
+ 
+
+let
+
+  # The physical folder in your home directory where you store raw config files
+
+  dotfiles = "${config.home.homeDirectory}/nixos-dotfiles/config";
+
+ 
+
+  # Helper function to create out-of-store live symlinks
+
+  create_symlink = path: config.lib.file.mkOutOfStoreSymlink path;
+
+ 
+
+  # Define the directory name inside ~/.config = mapping path in your dotfiles folder
+
+  configs = {
+
+    niri = "niri";
+
+    kitty = "kitty";
+
+  };
+
+in {
+
+  home.username = "MAIN_USER";
+
+  home.homeDirectory = "/home/MAIN_USER";
+
+ 
+
+  home.packages = with pkgs; [
+
+    mangohud     
+
+    heroic       
+
+    lutris       
+
+    bottles      
+
+    discord      
+
+    fuzzel       
+
+    waybar       
+
+  ];
+
+ 
+
+  # Automatically iterate over the configs list and dynamically create symlinks
+
+  # This targets ~/.config/niri and ~/.config/kitty automatically
+
+  xdg.configFile = builtins.mapAttrs (name: subpath: {
+
+    source = create_symlink "${dotfiles}/${subpath}";
+
+    recursive = true;
+
+  }) configs;
+
+ 
+
+  # Note: The 'programs.kitty' block is removed from here because Kitty is
+
+  # now configured using plain text files inside your live dotfiles folder.
+
+ 
+
+  programs.home-manager.enable = true;
+
+ 
+
+  home.sessionVariables = {
+
+    NIXOS_OZONE_WL = "1";
+
+  };
+
+ 
+
+  home.stateVersion = "26.05";
+
+}
+
+# Use code with caution.
+
+# 2. shared-packages.nix
+
+# Since we removed the Home Manager-managed block for Kitty to allow live symlinking, we should place kitty back into the system-wide packages list so both users can launch it.
+
+# nix
+
+{ pkgs, ... }:
+
+ 
+
+{
+
+  environment.systemPackages = with pkgs; [
+
+    firefox
+
+    vlc
+
+    kitty    # Re-added globally so both users can use it with their respective dotfiles
+
+    neovim
+
+    kate
+
+  ];
+
+}
+
+# Use code with caution.
+
+# 3. How to align your folders for this to work
+
+# Before building your system, you must create the target folders and configuration files locally. If Home Manager evaluates the symlink and the source path doesn't exist, it can cause issues.
+
+# Run the following commands as your MAIN_USER to create your editable configuration files:
+
+# bash
+
+# 1. Create your local dotfiles repository directory
+
+# mkdir -p ~/nixos-dotfiles/config/niri
+
+# mkdir -p ~/nixos-dotfiles/config/kitty
+
+ 
+
+# 2. Populate them with standard configuration text files
+
+# touch ~/nixos-dotfiles/config/niri/config.kdl
+
+# touch ~/nixos-dotfiles/config/kitty/kitty.conf
+
+# Use code with caution.
+
+# Now, any changes you make using nano, neovim, or kate directly inside ~/nixos-dotfiles/config/kitty/kitty.conf will take effect immediateley the moment you open or reload a Kitty terminal window—zero rebuilding required!
+
+# If you want to keep expanding this, let me know:
+
+#     If you want to use this exact same looping method to live-track configurations for Waybar or Fuzzel
+#     If you need an initial template to paste into your new ~/.config/niri/config.kdl file to get window tracking up and running
+
